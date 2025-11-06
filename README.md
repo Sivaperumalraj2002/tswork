@@ -27,7 +27,7 @@ bearing_anomaly_project/
 │   │   └── ...
 │
 ├── notebooks/
-│   └── anomaly_detection.ipynb
+│   └── anomaly_detection.ipynb (main file)
 │
 ├── models/
 │   ├── isolation_forest.joblib
@@ -54,3 +54,5 @@ pip install numpy pandas matplotlib scikit-learn tensorflow joblib
 ## Download Dataset
 Download the NASA Bearing Dataset from Kaggle:
 🔗 https://www.kaggle.com/datasets/vinayak123tyagi/bearing-dataset
+
+- Create the data dir in root directory and paste the data.
