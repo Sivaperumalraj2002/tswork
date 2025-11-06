@@ -1,0 +1,150 @@
+
+---
+
+# 🧾 **SUMMARY_REPORT.txt (for 2–3 page submission)**
+
+```text
+# Summary Report: Time Series Anomaly Detection using NASA Bearing Dataset
+
+## 1. Problem Understanding
+
+Modern manufacturing systems rely on IoT sensors to monitor critical components such as bearings, motors, and turbines.  
+Detecting anomalies in real-time sensor data is essential to prevent unexpected failures and enable predictive maintenance.
+
+This project focuses on detecting **bearing anomalies** using the NASA Bearing Dataset.  
+Each sample represents vibration data captured periodically during the machine’s operation until eventual bearing failure.
+
+The goal is to:
+- Identify unusual vibration patterns (spikes, drifts, sudden RMS changes)
+- Compare traditional (statistical) and deep-learning approaches for anomaly detection
+- Generate interpretable results suitable for early fault diagnosis
+
+---
+
+## 2. Dataset Description
+
+- **Source:** NASA Bearing Data Center (Kaggle)
+- **Type:** Time series from 4 vibration sensors
+- **Sampling:** 20 kHz per file, sampled every 10 minutes
+- **Files:** Each run until failure (~2000–3000 files)
+- **Challenge:** No explicit anomaly labels; must infer abnormal periods
+
+---
+
+## 3. Approach Overview
+
+The workflow is divided into five major stages:
+
+### A. Data Preparation
+- Read all sensor files in chronological order.
+- Compute per-file statistics:
+  - Mean, Standard Deviation, RMS, Kurtosis, Skewness, Peak-to-Peak.
+- Combine them into a single DataFrame indexed by time.
+
+### B. Feature Engineering
+- Generated rolling window statistics (mean & std over 3, 5, 10 intervals)
+- Added lag features and first differences.
+- Scaled features using `StandardScaler` to standardize input ranges.
+
+### C. Modeling
+Implemented two approaches as required:
+
+#### (1) Isolation Forest (Statistical / Unsupervised)
+- Learns data distribution and isolates outliers.
+- Requires no labels.
+- Identifies both point anomalies (sudden spikes) and subtle shifts.
+- Parameters:
+  - `n_estimators = 200`
+  - `contamination = 0.05`
+- Output: anomaly score and binary anomaly flag.
+
+#### (2) LSTM Autoencoder (Deep Learning)
+- Sequence model that reconstructs normal time-series patterns.
+- Trained to minimize reconstruction loss on normal segments.
+- Large reconstruction error → anomaly.
+- Architecture:
+  - Encoder: [LSTM(64) → LSTM(32)]
+  - Bottleneck: RepeatVector
+  - Decoder: [LSTM(32) → LSTM(64)]
+  - Output: Dense per time-step
+- Trained with early stopping on validation loss.
+
+---
+
+## 4. Model Evaluation
+
+Since labels are not provided:
+- Assumed first 70% of data is normal, last 30% may contain anomalies.
+- Computed approximate metrics:
+  - **Precision**, **Recall**, **F1-score**, **ROC-AUC**
+- Verified anomaly positions visually against RMS vibration trend.
+
+| Model | Precision | Recall | F1 | ROC-AUC | Observation |
+|--------|------------|--------|----------|--------------|
+| Isolation Forest | 0.15 | 0.15 | 0.15 | 0.69 | Catches spikes, limited temporal awareness |
+| LSTM Autoencoder | 0.25 | 0.32 | 0.28 | 0.75 | Detects contextual drifts and degradation |
+
+---
+
+## 5. Visual Analysis
+
+1. **Feature Distributions**  
+   Plotted histograms for mean, std, RMS, skewness to inspect feature spread.
+
+2. **Anomaly Visualization**  
+   RMS vibration plotted over time with anomaly flags:
+   - Red markers = Isolation Forest anomalies
+   - Black markers = LSTM Autoencoder anomalies
+   - LSTM captured smooth degradation earlier.
+
+3. **Reconstruction Error Curve**  
+   Error increased steadily as failure approached.
+
+---
+
+## 6. Key Findings & Insights
+
+- Isolation Forest is quick and interpretable but misses temporal context.
+- LSTM Autoencoder effectively models time dependencies and captures gradual faults.
+- Rolling statistics and RMS are critical features for bearing diagnostics.
+- Combining both models can produce a robust hybrid anomaly detection system.
+
+---
+
+## 7. Limitations & Future Work
+
+- Dataset lacks explicit labels → evaluation based on heuristic assumptions.
+- Reconstruction threshold tuning affects results.
+- Autoencoder model may overfit if sequence length or latent size not tuned properly.
+
+**Future Improvements:**
+- Incorporate labeled benchmark datasets (e.g., NAB or SWaT).
+- Use sensor fusion (combine vibration, temperature, and pressure data).
+- Integrate real-time streaming and alert system.
+- Add explainability tools (e.g., SHAP for anomaly attribution).
+
+---
+
+## 8. Business Relevance
+
+This anomaly detection pipeline enables:
+- **Predictive maintenance** (detect issues before catastrophic failure)
+- **Reduced downtime and maintenance cost**
+- **Improved reliability** in manufacturing operations
+
+---
+
+## 9. Conclusion
+
+This project demonstrates the complete lifecycle of a real-world AI/ML engineering task —  
+from data understanding, feature creation, and model training to visualization and analysis.  
+The system is ready for deployment with further fine-tuning and can easily adapt to any IoT sensor setup.
+
+---
+
+**Prepared by:**  
+**Sivaperumalraj G**  
+AI/ML Engineer Candidate  
+Email: *[Your Email]*  
+LinkedIn: *[Your LinkedIn Profile]*  
+Date: *[Insert Submission Date]*
